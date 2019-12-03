@@ -17,12 +17,12 @@ int isEnd(char c){
 
 
 char* plusWord(char *word){//, int *numberOfSymbols){
-    if (!strcmp(word, "%date%"))
+    if (!strcmp(word, "%date%\0"))
             return "date"; // date();
     else
-        if (!strcmp(word,"%time%")) {
+        if (!strcmp(word,"%time%\0")) {
             //*numberOfSymbols = 4;
-            return "time";
+            return "time\0";
         }
         else {
             return word;
@@ -54,6 +54,7 @@ void readText(FILE *fileInput, FILE *fileOutput)
 
     int k = 0;
     while (k < numberOfSymbolsInText){
+
         char *wordOnly = NULL;
         wordOnly = (char *) malloc(sizeof(char));// */
         int numberOfSymbolsInWord = 0;
@@ -64,17 +65,22 @@ void readText(FILE *fileInput, FILE *fileOutput)
             numberOfSymbolsInWord++;
             k++;
         }
-        fprintf(fileOutput, "%s", wordOnly);
-        if (!strcmp(wordOnly, "%time%"))
+
+        wordOnly = (char *) realloc(wordOnly, (numberOfSymbolsInWord + 1) * sizeof(char));
+        wordOnly[numberOfSymbolsInWord] = '\0';
+
+        //fprintf(fileOutput, "%s", wordOnly);
+       /* if (!strcmp(wordOnly, "%time%"))
         {
             wordOnly = "time";
             numberOfSymbolsInWord = 4;
             fprintf(fileOutput, "\ntit\n");
-        }
+        }*/
 
         //wordOnly = plusWord(wordOnly);//, &numberOfSymbolsInWord);
+        fprintf(fileOutput, "%s", plusWord(wordOnly));
         //numberOfSymbolsInWord = strlen(wordOnly);
-
+/*
         for (int i = 0; i < numberOfSymbolsInWord; i++) {
             fprintf(fileOutput, "%c", wordOnly[i]);
         }//*/
