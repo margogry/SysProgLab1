@@ -6,19 +6,6 @@
 
 int numberOfChanges = 0;
 
-void help() {
-    printf("This function \n");
-    printf("usage:\n");
-}
-
-int isEnd(char c){
-    if((c == ' ')||(c == '\n')||(c == '\t')||(c == '\r')||(c == '\0')||(c == EOF))
-        return 1;
-    else
-        return 0;
-}
-
-
 char* plusWord(char *word, int numberOfLine){//, int *numberOfSymbols){
     if (!strcmp(word, "%date%\0")){
         numberOfChanges++;
@@ -81,36 +68,43 @@ void readText(FILE *fileInput, FILE *fileOutput)
         currentSymbol = fgetc(fileInput);
         numberOfSymbolsInText++;
     }
-
     fprintf(fileOutput, "\n");
 
     int k = 0;
     int numberOfLines = 1;
     while (k < numberOfSymbolsInText){
+        if (inputText[k] == '%'){
+            char *wordOnly = NULL;
+            wordOnly = (char *) malloc(sizeof(char));// */
 
-        char *wordOnly = NULL;
-        wordOnly = (char *) malloc(sizeof(char));// */
-        int numberOfSymbolsInWord = 0;
+            int numberOfSymbolsInWord = 0;
+            int isPersent = 0;
 
-        while (k < numberOfSymbolsInText  && !isEnd(inputText[k])) {
-            wordOnly = (char *) realloc(wordOnly, (numberOfSymbolsInWord + 1) * sizeof(char));
-            wordOnly[numberOfSymbolsInWord] = inputText[k];
-            numberOfSymbolsInWord++;
+            while (k < numberOfSymbolsInText && !isPersent && numberOfSymbolsInWord < 8 ) {
+                wordOnly = (char *) realloc(wordOnly, (numberOfSymbolsInWord + 1) * sizeof(char));
+                wordOnly[numberOfSymbolsInWord] = inputText[k];
+                if (inputText[k] == '\n')
+                    numberOfLines++;
+                if (wordOnly[numberOfSymbolsInWord] == '%')
+                    isPersent = 1;
+                numberOfSymbolsInWord++;
+                k++;
+            }
+
+            wordOnly = (char *) realloc(wordOnly, (numberOfSymbolsInWord+1) * sizeof(char));
+            wordOnly[numberOfSymbolsInWord] = '\0';
+
+            fprintf(fileOutput, "%s", plusWord(wordOnly, numberOfLines));
+            free(wordOnly);
+        }
+        else{
+            fprintf(fileOutput, "%c", inputText[k]);
+            if (inputText[k] == '\n')
+                numberOfLines++;
             k++;
         }
 
-        wordOnly = (char *) realloc(wordOnly, (numberOfSymbolsInWord + 1) * sizeof(char));
-        wordOnly[numberOfSymbolsInWord] = '\0';
-
-        fprintf(fileOutput, "%s", plusWord(wordOnly, numberOfLines));
-
-        fprintf(fileOutput, "%c", inputText[k]);
-        if (inputText[k] == '\n')
-            numberOfLines++;
-        k++;
-        free(wordOnly);
     }
-
     free(inputText);
     return;
 };
@@ -120,8 +114,10 @@ void readText(FILE *fileInput, FILE *fileOutput)
 int main(int argc, char **argv){
     FILE *fileInput = 0;
     FILE *fileOutput = 0;
-
-    switch (argc){
+    fileInput = fopen("input.txt","r");
+    fileOutput = fopen("output.txt","w");
+    readText(fileInput, fileOutput);
+  /*  switch (argc){
         case 1:
             readText(stdin, stdout);
             break;
@@ -152,6 +148,6 @@ int main(int argc, char **argv){
                 }
             break;
         default: break;
-    };
+    };//*/
     return 0;
 }
