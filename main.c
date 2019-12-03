@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+
+int numberOfChanges = 0;
 
 void help() {
     printf("This function \n");
@@ -16,25 +19,54 @@ int isEnd(char c){
 }
 
 
-char* plusWord(char *word){//, int *numberOfSymbols){
-    if (!strcmp(word, "%date%\0"))
-            return "date"; // date();
+char* plusWord(char *word, int numberOfLine){//, int *numberOfSymbols){
+    if (!strcmp(word, "%date%\0")){
+        numberOfChanges++;
+        time_t rawDate;
+        struct tm * dateInfo;
+        char *buffer = NULL;
+        buffer = (char*)malloc(9*sizeof(char));// строка, в которой будет храниться текущее время
+
+        time ( &rawDate );                               // текущая дата в секундах
+        dateInfo = localtime (&rawDate );               // текущее локальное время, представленное в структуре
+
+        strftime (buffer, 9, "%x", dateInfo); // форматируем строку времени
+        return buffer;
+        }
     else
         if (!strcmp(word,"%time%\0")) {
-            //*numberOfSymbols = 4;
-            return "time\0";
+            numberOfChanges++;
+            time_t rawTime;
+            struct tm * timeInfo;
+            char *buffer = NULL;
+            buffer = (char*)malloc(9*sizeof(char));// строка, в которой будет храниться текущее время
+
+            time ( &rawTime );                               // текущая дата в секундах
+            timeInfo = localtime ( &rawTime );               // текущее локальное время, представленное в структуре
+
+            strftime (buffer,9,"%X",timeInfo); // форматируем строку времени
+            return buffer;
         }
-        else {
-            return word;
-        };
-    /*
-else
-if (!strcmp(word, "%line%"))
-    return line();
-else
-    if(!strcmp(word, "%counter%"))
-        return counter();*/
-}
+        else
+            if (!strcmp(word,"%line%\0")) {
+                numberOfChanges++;
+                char *buffer = NULL;
+                buffer = (char*)malloc(100*sizeof(char));
+                sprintf(buffer, "%d", numberOfLine);
+                return buffer;
+            }
+            else
+                if (!strcmp(word, "%counter%")){
+                    char *buffer = NULL;
+                    buffer = (char*)malloc(100*sizeof(char));
+                    sprintf(buffer, "%d", numberOfChanges);
+                    numberOfChanges++;
+                    return buffer;
+                }
+                else
+                    return word;
+};
+
 
 void readText(FILE *fileInput, FILE *fileOutput)
 {
@@ -53,6 +85,7 @@ void readText(FILE *fileInput, FILE *fileOutput)
     fprintf(fileOutput, "\n");
 
     int k = 0;
+    int numberOfLines = 1;
     while (k < numberOfSymbolsInText){
 
         char *wordOnly = NULL;
@@ -69,28 +102,16 @@ void readText(FILE *fileInput, FILE *fileOutput)
         wordOnly = (char *) realloc(wordOnly, (numberOfSymbolsInWord + 1) * sizeof(char));
         wordOnly[numberOfSymbolsInWord] = '\0';
 
-        //fprintf(fileOutput, "%s", wordOnly);
-       /* if (!strcmp(wordOnly, "%time%"))
-        {
-            wordOnly = "time";
-            numberOfSymbolsInWord = 4;
-            fprintf(fileOutput, "\ntit\n");
-        }*/
+        fprintf(fileOutput, "%s", plusWord(wordOnly, numberOfLines));
 
-        //wordOnly = plusWord(wordOnly);//, &numberOfSymbolsInWord);
-        fprintf(fileOutput, "%s", plusWord(wordOnly));
-        //numberOfSymbolsInWord = strlen(wordOnly);
-/*
-        for (int i = 0; i < numberOfSymbolsInWord; i++) {
-            fprintf(fileOutput, "%c", wordOnly[i]);
-        }//*/
         fprintf(fileOutput, "%c", inputText[k]);
+        if (inputText[k] == '\n')
+            numberOfLines++;
         k++;
         free(wordOnly);
     }
 
     free(inputText);
-// */
     return;
 };
 
