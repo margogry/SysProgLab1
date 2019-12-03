@@ -80,17 +80,14 @@ void readText(FILE *fileInput, FILE *fileOutput)
             int numberOfSymbolsInWord = 0;
             int isPersent = 0;
 
-            while (k < numberOfSymbolsInText && !isPersent && numberOfSymbolsInWord < 8 ) {
+            while (k < numberOfSymbolsInText && (isPersent != 1) && (numberOfSymbolsInWord < 10) ) {
                 wordOnly = (char *) realloc(wordOnly, (numberOfSymbolsInWord + 1) * sizeof(char));
                 wordOnly[numberOfSymbolsInWord] = inputText[k];
-                if (inputText[k] == '\n')
-                    numberOfLines++;
-                if (wordOnly[numberOfSymbolsInWord] == '%')
+                if (wordOnly[numberOfSymbolsInWord] == '%' && numberOfSymbolsInWord != 0)
                     isPersent = 1;
                 numberOfSymbolsInWord++;
                 k++;
             }
-
             wordOnly = (char *) realloc(wordOnly, (numberOfSymbolsInWord+1) * sizeof(char));
             wordOnly[numberOfSymbolsInWord] = '\0';
 
