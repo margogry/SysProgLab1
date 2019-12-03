@@ -4,20 +4,33 @@
 #include <string.h>
 #include <time.h>
 
+//Переменна, для подсчета числа замен
 int numberOfChanges = 0;
-
+//
+//Функция для вывода инстукции
+//
+void help(){
+    fprintf(stdout, "Эта программа выполняет замены в тексте.\n");
+    fprintf(stdout, "%%date%% заменять на текущую дату;\n");
+    fprintf(stdout, "%%time%% заменять на текущее время;\n");
+    fprintf(stdout, "%%line%% заменять на номер текущей строки;\n");
+    fprintf(stdout, "%%counter%% заменять на значение счетчика, который увеличивается на\n");
+    fprintf(stdout, "единицу после каждой замены, начальное значение счетчика - ноль.\n");
+    fprintf(stdout, "Для начала работы введите: ./main.exe [исходный файл [результирующий файл]]\n");
+}
+//
+//Функция, обрабатывающая поступившее слово на предмет совпадения с ключевами
+//
 char* plusWord(char *word, int numberOfLine){//, int *numberOfSymbols){
-    if (!strcmp(word, "%date%\0")){
+    if (!strcmp(word, "%date%")){
         numberOfChanges++;
         time_t rawDate;
         struct tm * dateInfo;
         char *buffer = NULL;
-        buffer = (char*)malloc(9*sizeof(char));// строка, в которой будет храниться текущее время
-
-        time ( &rawDate );                               // текущая дата в секундах
-        dateInfo = localtime (&rawDate );               // текущее локальное время, представленное в структуре
-
-        strftime (buffer, 9, "%x", dateInfo); // форматируем строку времени
+        buffer = (char*)malloc(9*sizeof(char));
+        time ( &rawDate );
+        dateInfo = localtime (&rawDate );
+        strftime (buffer, 9, "%x", dateInfo);
         return buffer;
         }
     else
@@ -26,12 +39,10 @@ char* plusWord(char *word, int numberOfLine){//, int *numberOfSymbols){
             time_t rawTime;
             struct tm * timeInfo;
             char *buffer = NULL;
-            buffer = (char*)malloc(9*sizeof(char));// строка, в которой будет храниться текущее время
-
-            time ( &rawTime );                               // текущая дата в секундах
-            timeInfo = localtime ( &rawTime );               // текущее локальное время, представленное в структуре
-
-            strftime (buffer,9,"%X",timeInfo); // форматируем строку времени
+            buffer = (char*)malloc(9*sizeof(char));
+            time ( &rawTime );
+            timeInfo = localtime ( &rawTime );
+            strftime (buffer,9,"%X",timeInfo);
             return buffer;
         }
         else
@@ -54,48 +65,64 @@ char* plusWord(char *word, int numberOfLine){//, int *numberOfSymbols){
                     return word;
 };
 
-
-void readText(FILE *fileInput, FILE *fileOutput)
-{
+//
+//Функция для чтения потока входных данных и их вывода
+//
+void readText(FILE *fileInput, FILE *fileOutput){
     char *inputText = NULL;
     inputText = (char*)malloc(sizeof(char));
     int numberOfSymbolsInText = 0;
     char currentSymbol = fgetc(fileInput);
-    while (currentSymbol != EOF)
+
+    while (currentSymbol != EOF)//чтение
     {
         inputText = (char *) realloc(inputText, (numberOfSymbolsInText + 1) * sizeof(char));
         inputText[numberOfSymbolsInText] = currentSymbol;
         currentSymbol = fgetc(fileInput);
         numberOfSymbolsInText++;
     }
-    fprintf(fileOutput, "\n");
+
+    if (fileOutput == stdout)
+        fprintf(fileOutput, "\n");
 
     int k = 0;
     int numberOfLines = 1;
-    while (k < numberOfSymbolsInText){
+    while (k < numberOfSymbolsInText){ //обработка
         if (inputText[k] == '%'){
             char *wordOnly = NULL;
-            wordOnly = (char *) malloc(sizeof(char));// */
+            wordOnly = (char *) malloc(sizeof(char));
 
             int numberOfSymbolsInWord = 0;
             int isPersent = 0;
-
-            while (k < numberOfSymbolsInText && (isPersent != 1) && (numberOfSymbolsInWord < 10) ) {
+            int tmpK = k, tmpChanges = numberOfChanges;
+            while (tmpK < numberOfSymbolsInText && (isPersent != 1) && (numberOfSymbolsInWord < 10) ) { //запись слова с %%
                 wordOnly = (char *) realloc(wordOnly, (numberOfSymbolsInWord + 1) * sizeof(char));
-                wordOnly[numberOfSymbolsInWord] = inputText[k];
+                wordOnly[numberOfSymbolsInWord] = inputText[tmpK];
                 if (wordOnly[numberOfSymbolsInWord] == '%' && numberOfSymbolsInWord != 0)
                     isPersent = 1;
                 numberOfSymbolsInWord++;
-                k++;
+                tmpK++;
             }
             wordOnly = (char *) realloc(wordOnly, (numberOfSymbolsInWord+1) * sizeof(char));
             wordOnly[numberOfSymbolsInWord] = '\0';
 
-            fprintf(fileOutput, "%s", plusWord(wordOnly, numberOfLines));
+            char *newWord = NULL;
+            newWord = (char *) malloc(sizeof(char));
+            newWord = plusWord(wordOnly, numberOfLines);
+
+            if (tmpChanges == numberOfChanges){ //вывод
+                fprintf(fileOutput, "%c", inputText[k]);
+                k++;
+            }
+            else{
+                k = tmpK;
+                fprintf(fileOutput, "%s", newWord);
+            }
+
             free(wordOnly);
         }
         else{
-            fprintf(fileOutput, "%c", inputText[k]);
+            fprintf(fileOutput, "%c", inputText[k]);//вывод
             if (inputText[k] == '\n')
                 numberOfLines++;
             k++;
@@ -104,17 +131,17 @@ void readText(FILE *fileInput, FILE *fileOutput)
     }
     free(inputText);
     return;
-};
+}
 
 
 
 int main(int argc, char **argv){
     FILE *fileInput = 0;
     FILE *fileOutput = 0;
-    fileInput = fopen("input.txt","r");
-    fileOutput = fopen("output.txt","w");
-    readText(fileInput, fileOutput);
-  /*  switch (argc){
+    //
+    //Оператор для выбора потоков считывания и записи данных.
+    //
+    switch (argc){
         case 1:
             readText(stdin, stdout);
             break;
@@ -144,7 +171,9 @@ int main(int argc, char **argv){
                     fprintf(stderr, "Unable to open file %s", argv[2]);
                 }
             break;
-        default: break;
-    };//*/
+        default:
+            help();
+            break;
+    };
     return 0;
 }

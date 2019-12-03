@@ -1,10 +1,10 @@
 
-Hello, my name is Veronika. Today I want to tell you about m%time%y family. My family is not very big. It consists of %line% my mother, my father and me.
+Hello, my name is Veronika. Today I want to tell you about m%%time%y family. My family is not very big. It consists of %line% my mother, my father and me.
 
-My mother’s name is Elena. %counter% She is 27 years old. She has got %line% %line% brown hair and brown eyes. She is slim. She is very kind and always ready to help me. Her profession is a teacher. She likes her work very much.
-%date%
+My mother’s name is Elena. %counter% She is 27 years old. She has got %line%%line% brown hair and brown eyes. She is slim. She is very kind and always ready to help me. Her profession is a teacher. She likes her work very much.
+%ddddddddddddddd%date%
 Now I’ll tell you about my father. %line%His name is Alexander. He is 27, too. He is very tall. His eyes and his hair are brown. He is an electrical engineer. I think, he can fix everything!
 
 My parents are very funny and energetic people. When everybody is at home, we like to talk about everything. We play different games together. We also like to walk in the street. When we have time, we drive to parks, or such interesting places like big supermarkets, cafes, the centre of the city. %line%
-%date%
-I’ve also got grandparents, but they don’t %counter% live with us. We visit %time% them very often. My family is great, I love all of them very much. %line%
+%nnnnnnnn%date%
+I’ve also got grandparents, but they don’t %counter% live with us. We visit %time% them very often. My family is great, I love all of them very %much.%
